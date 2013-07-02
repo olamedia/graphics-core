@@ -20,8 +20,7 @@ public class ApplicationFrame extends JFrame {
 	private static ApplicationFrame instance = new ApplicationFrame();
 	private int width = 640;
 	private int height = 480;
-	private int glWidth = 640;
-	private int glHeight = 480;
+	
 
 	public ApplicationFrame() {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -83,21 +82,7 @@ public class ApplicationFrame extends JFrame {
 		return instance;
 	}
 
-	public int getGlWidth() {
-		return glWidth;
-	}
-
-	public void setGlWidth(int glWidth) {
-		this.glWidth = glWidth;
-	}
-
-	public int getGlHeight() {
-		return glHeight;
-	}
-
-	public void setGlHeight(int glHeight) {
-		this.glHeight = glHeight;
-	}
+	
 
 	// public void show() {
 
