@@ -1,5 +1,7 @@
 package ru.olamedia.graphics;
 
+import java.util.ArrayList;
+
 import javax.swing.JFrame;
 
 import com.jogamp.newt.opengl.GLWindow;
@@ -12,9 +14,32 @@ public class GraphicsApi {
 	private GLWindow glWindow;
 	private int glWidth = 640;
 	private int glHeight = 480;
+	private ArrayList<GLInitEventListener> listeners = new ArrayList<GLInitEventListener>();
+	private boolean isGLInitialized = false;
 
 	public static GraphicsApi getInstance() {
 		return instance;
+	}
+
+	public void addListener(GLInitEventListener listener) {
+		listeners.add(listener);
+	}
+
+	public void fireGLInitEvent() {
+		if (!isGLInitialized) {
+			isGLInitialized = true;
+		}
+		// for (GLInitEventListener listener : listeners) {
+		// listener.onGLInit();
+		// }
+		for (int i = 0; i < listeners.size(); i++) {
+			listeners.get(i).onGLInit();
+			listeners.remove(i);
+		}
+	}
+
+	public void fireGLResizeEvent(int width, int height) {
+
 	}
 
 	/**

@@ -10,10 +10,11 @@ import com.jogamp.newt.Display;
 import com.jogamp.newt.Screen;
 import com.jogamp.newt.awt.NewtCanvasAWT;
 import com.jogamp.newt.opengl.GLWindow;
+import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.FPSAnimator;
 
 import ru.olamedia.graphics.frame.GLEventListener;
-import ru.olamedia.graphics.frame.RedWindow;
+import ru.olamedia.graphics.frame.LogoWindow;
 import ru.olamedia.graphics.frame.SystemGLEventListener;
 import ru.olamedia.launcher.IDisposable;
 import ru.olamedia.launcher.Preloader;
@@ -46,51 +47,24 @@ public class GraphicsCoreMod extends ModBase implements IDisposable {
 	private int screenId;
 	private GLProfile glProfile;
 	private GLWindow glWindow;
-	private FPSAnimator animator;
+	private Animator animator;
+	private FPSAnimator fpsAnimator;
 
 	public NewtCanvasAWT createDrawable() {
 		System.setProperty("jnlp.jogamp.common.utils.locks.Lock.timeout", "60000");
 		glProfile = GLProfile.get(GLProfile.GL2ES2);// Default();
-		// ES2
-		/*
-		 * This demo are based on the GL2ES2 GLProfile that allows hardware
-		 * acceleration
-		 * on both desktop OpenGL 2 and mobile OpenGL ES 2 devices.
-		 * JogAmp JOGL will probe all the installed libGL.so, libEGL.so and
-		 * libGLESv2.so librarys on
-		 * the system to find which one provide hardware acceleration for your
-		 * GPU device.
-		 * Its common to find more than one version of these librarys installed
-		 * on a system.
-		 * For example on a ARM Linux system JOGL may find
-		 * Hardware accelerated Nvidia tegra GPU drivers in:
-		 * /usr/lib/nvidia-tegra/libEGL.so
-		 * Software rendered Mesa Gallium driver in:
-		 * /usr/lib/arm-linux-gnueabi/mesa-egl/libEGL.so.1
-		 * Software rendered Mesa X11 in:
-		 * /usr/lib/arm-linux-gnueabi/mesa/libGL.so
-		 * Good news!: JOGL does all this probing for you all you have to do are
-		 * to ask for
-		 * the GLProfile you want to use.
-		 */
-
 		GLCapabilities caps = new GLCapabilities(glProfile);
-		// We may at this point tweak the caps and request a translucent
-		// drawable
-		caps.setBackgroundOpaque(false);
+		caps.setBackgroundOpaque(false); // avoid flickering with 13.1 legacy
+											// ATI drivers
 		caps.setHardwareAccelerated(true);
 		caps.setDoubleBuffered(true); // hardware swap
-		// caps.setBackgroundOpaque(true);
 		caps.setSampleBuffers(false);
-
 		Display display = NewtFactoryAWT.createDisplay(null);
 		Screen screen = NewtFactoryAWT.createScreen(display, screenId);
-		glWindow = GLWindow.create(screen, caps);// GLWindow.create(screen,
-		// glWindow.addGLEventListener(GLEventListener.getInstance());
+		glWindow = GLWindow.create(screen, caps);
 		GraphicsApi.getInstance().setGlWindow(glWindow);
 		GraphicsApi.getInstance().setGLEventListener(SystemGLEventListener.getInstance());
 		GraphicsApi.getInstance().setGLEventListener(GLEventListener.getInstance());
-		// caps);
 		NewtCanvasAWT newtCanvasAWT = new NewtCanvasAWT(glWindow);
 		newtCanvasAWT.setVisible(true);
 		return newtCanvasAWT;
@@ -118,21 +92,15 @@ public class GraphicsCoreMod extends ModBase implements IDisposable {
 		// frame.getContentPane().setSize(frame.getContentPane().getWidth(),
 		// frame.getContentPane().getHeight() + 1);
 		// frame.getContentPane().doLayout();
-		api.setGLEventListener(new RedWindow());
-		animator = new FPSAnimator(60);
+		// fpsAnimator = new FPSAnimator(60);
+		animator = new Animator();
+		animator.setRunAsFastAsPossible(true);
+		animator.setUpdateFPSFrames(1000, System.out);
 		animator.add(api.getGlWindow());
 		animator.start();
-		/*
-		 * if (null != frame) {
-		 * frame.setTitle("Graphics Core");
-		 * } else {
-		 * final ApplicationFrame f = ApplicationFrame.getInstance();
-		 * f.setTitle("Graphics Core");
-		 * f.initGL();
-		 * f.setVisible(true);
-		 * GraphicsApi.getInstance().setGLEventListener(new RedWindow());
-		 * }
-		 */
+		api.setGLEventListener(LogoWindow.getInstance());
+		frame.setTitle("Initializing OpenGL... OK");
+		api.fireGLInitEvent();
 	}
 
 	@Override
